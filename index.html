@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeSDTT630D-HW 成本結構分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chart-container">
+        <h2>PeSDTT630D-HW 供應商成本佔比 (Top 8)</h2>
+        <canvas id="costChart"></canvas>
+    </div>
+
+    <div class="footer">
+        <p>資料來源: BOM 2026.01.12 | 總成本估算: TWD 768,901</p>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('costChart').getContext('2d');
+
+        // 數據來源：根據 BOM 分析結果
+        const labels = [
+            'HEMA (德國煞車)', 
+            '晟昌 (廠內加工)', 
+            '明江 (光學尺)', 
+            '全勝鋼鐵 (素材)', 
+            '航電 (線材/接頭)', 
+            '珂業 (軸承)', 
+            '傳裕 (鑄件)', 
+            '鎂光 (熱處理)', 
+            '其他供應商 (Others)'
+        ];
+
+        const dataValues = [
+            159168, // HEMA
+            112631, // 晟昌
+            61295,  // 明江
+            59060,  // 全勝
+            49831,  // 航電
+            43500,  // 珂業
+            36520,  // 傳裕
+            31165,  // 鎂光
+            215731  // 其他 (總額 - Top 8)
+        ];
+
+        const costChart = new Chart(ctx, {
+            type: 'doughnut', // 使用甜甜圈圖，看起來比較現代
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '成本金額 (TWD)',
+                    data: dataValues,
+                    backgroundColor: [
+                        '#FF6384', // HEMA (紅色警示)
+                        '#36A2EB', // 晟昌 (藍色)
+                        '#FFCE56', // 明江
+                        '#4BC0C0', // 全勝
+                        '#9966FF', // 航電
+                        '#FF9F40', // 珂業
+                        '#8D6E63', // 傳裕
+                        '#78909C', // 鎂光
+                        '#E0E0E0'  // 其他 (灰色)
+                    ],
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw;
+                                let total = context.chart._metasets[context.datasetIndex].total;
+                                let percentage = ((value / total) * 100).toFixed(1) + "%";
+                                return label + ': $' + value.toLocaleString() + ' (' + percentage + ')';
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '前三大供應商佔據約 43% 總成本',
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
