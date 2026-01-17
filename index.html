@@ -3,135 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeSDTT630D-HW 成本結構分析</title>
+    <title>Asset Vibe | Cost Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent-glow: 0 0 20px rgba(244, 63, 94, 0.3);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* 背景裝飾光暈 */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.1) 0%, transparent 40%);
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: #333;
         }
-        .chart-container {
-            position: relative;
-            width: 90%;
-            max-width: 800px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h2 {
+
+        .header {
             text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
+            margin-bottom: 30px;
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #666;
+
+        h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin: 0 0 5px 0;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 0.875rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* 控制圖表大小 */
+            aspect-ratio: 1;
+        }
+
+        /* 中央總金額文字 */
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .center-label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .center-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .legend-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            background: rgba(255,255,255,0.03);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .legend-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-card {
+                padding: 20px;
+                width: 95%;
+            }
+            .center-value {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="chart-container">
-        <h2>PeSDTT630D-HW 供應商成本佔比 (Top 8)</h2>
-        <canvas id="costChart"></canvas>
-    </div>
+    <div class="dashboard-card">
+        <div class="header">
+            <h1>PeSDTT630D-HW Cost Breakdown</h1>
+            <div class="subtitle">供應商成本結構分析 (BOM 2026.01)</div>
+        </div>
 
-    <div class="footer">
-        <p>資料來源: BOM 2026.01.12 | 總成本估算: TWD 768,901</p>
+        <div class="chart-wrapper">
+            <canvas id="vibeChart"></canvas>
+            <div class="center-text">
+                <div class="center-label">Total Est.</div>
+                <div class="center-value">$768k</div>
+            </div>
+        </div>
+
+        <div class="legend-container" id="customLegend">
+            </div>
     </div>
 
     <script>
-        const ctx = document.getElementById('costChart').getContext('2d');
+        // 設定全局字體顏色
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
 
-        // 數據來源：根據 BOM 分析結果
+        const ctx = document.getElementById('vibeChart').getContext('2d');
+
+        // 霓虹配色盤 (Neon Palette)
+        const colors = [
+            '#F43F5E', // HEMA (Neon Pink/Red) - Warning
+            '#0EA5E9', // 晟昌 (Sky Blue)
+            '#8B5CF6', // 明江 (Violet)
+            '#10B981', // 全勝 (Emerald)
+            '#F59E0B', // 航電 (Amber)
+            '#6366F1', // 珂業 (Indigo)
+            '#EC4899', // 傳裕 (Pink)
+            '#14B8A6', // 鎂光 (Teal)
+            '#475569'  // Others (Slate)
+        ];
+
         const labels = [
-            'HEMA (德國煞車)', 
-            '晟昌 (廠內加工)', 
-            '明江 (光學尺)', 
-            '全勝鋼鐵 (素材)', 
-            '航電 (線材/接頭)', 
-            '珂業 (軸承)', 
-            '傳裕 (鑄件)', 
-            '鎂光 (熱處理)', 
-            '其他供應商 (Others)'
+            'HEMA (德國煞車)', '晟昌 (廠內加工)', '明江 (光學尺)', 
+            '全勝鋼鐵 (素材)', '航電 (線材)', '珂業 (軸承)', 
+            '傳裕 (鑄件)', '鎂光 (熱處理)', 'Others'
         ];
 
         const dataValues = [
-            159168, // HEMA
-            112631, // 晟昌
-            61295,  // 明江
-            59060,  // 全勝
-            49831,  // 航電
-            43500,  // 珂業
-            36520,  // 傳裕
-            31165,  // 鎂光
-            215731  // 其他 (總額 - Top 8)
+            159168, 112631, 61295, 59060, 49831, 
+            43500, 36520, 31165, 215731
         ];
 
-        const costChart = new Chart(ctx, {
-            type: 'doughnut', // 使用甜甜圈圖，看起來比較現代
+        const vibeChart = new Chart(ctx, {
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '成本金額 (TWD)',
                     data: dataValues,
-                    backgroundColor: [
-                        '#FF6384', // HEMA (紅色警示)
-                        '#36A2EB', // 晟昌 (藍色)
-                        '#FFCE56', // 明江
-                        '#4BC0C0', // 全勝
-                        '#9966FF', // 航電
-                        '#FF9F40', // 珂業
-                        '#8D6E63', // 傳裕
-                        '#78909C', // 鎂光
-                        '#E0E0E0'  // 其他 (灰色)
-                    ],
-                    hoverOffset: 15
+                    backgroundColor: colors,
+                    borderWidth: 0, // 無邊框更現代
+                    hoverOffset: 20, // 懸停時放大效果
+                    borderRadius: 5,  // 圓角扇形
                 }]
             },
             options: {
                 responsive: true,
+                cutout: '75%', // 更細的甜甜圈
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
+                        display: false // 隱藏預設圖例，使用自定義的
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 8,
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
                         callbacks: {
                             label: function(context) {
-                                let label = context.label || '';
                                 let value = context.raw;
                                 let total = context.chart._metasets[context.datasetIndex].total;
                                 let percentage = ((value / total) * 100).toFixed(1) + "%";
-                                return label + ': $' + value.toLocaleString() + ' (' + percentage + ')';
+                                return ' ' + percentage + '  ($' + value.toLocaleString() + ')';
                             }
                         }
-                    },
-                    title: {
-                        display: true,
-                        text: '前三大供應商佔據約 43% 總成本',
-                        font: {
-                            size: 16
-                        },
-                        padding: {
-                            top: 10,
-                            bottom: 30
-                        }
                     }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
                 }
             }
+        });
+
+        // 生成自定義圖例
+        const legendContainer = document.getElementById('customLegend');
+        labels.forEach((label, index) => {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            item.innerHTML = `
+                <div class="dot" style="background-color: ${colors[index]}; color: ${colors[index]}"></div>
+                ${label}
+            `;
+            // 點擊圖例互動
+            item.onclick = function() {
+                const meta = vibeChart.getDatasetMeta(0);
+                const isHidden = meta.data[index].hidden;
+                meta.data[index].hidden = !isHidden;
+                
+                // 更新樣式
+                item.style.opacity = !isHidden ? '0.5' : '1';
+                item.style.textDecoration = !isHidden ? 'line-through' : 'none';
+                
+                vibeChart.update();
+            };
+            legendContainer.appendChild(item);
         });
     </script>
 </body>
